@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title> Goal Dashboard</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #ff9a9e, #fecfef, #a1c4fd);
+      background-size: 200% 200%;
+      animation: bgMove 18s ease infinite;
+      display: flex;
+      justify-content: center;
+      padding: 20px;
+      font-size: 17px;
+    }
+
+    @keyframes bgMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .app {
+      width: 100%;
+      max-width: 960px;
+      background: rgba(255, 255, 255, 0.96);
+      border-radius: 24px;
+      box-shadow: 0 14px 40px rgba(255, 111, 145, 0.4);
+      padding: 20px 18px 22px;
+      backdrop-filter: blur(10px);
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .title-block h1 {
+      font-size: 26px;
+      font-weight: 700;
+      color: #22223b;
+      margin-bottom: 4px;
+    }
+
+    .title-block p {
+      font-size: 15px;
+      color: #4a4e69;
+    }
+
+    .today-pill {
+      padding: 8px 16px;
+      border-radius: 999px;
+      background: #fffae5;
+      border: 1px solid #ffd166;
+      font-size: 14px;
+      color: #7b2cbf;
+      white-space: nowrap;
+    }
+
+    /* Stats row */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .stat-card {
+      background: #fff7fb;
+      border-radius: 18px;
+      padding: 10px 14px;
+      border: 1px solid #f7c6ff;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .stat-card:nth-child(2) {
+      background: #e6fffa;
+      border-color: #80ed99;
+    }
+
+    .stat-card:nth-child(3) {
+      background: #eff6ff;
+      border-color: #9bb5ff;
+    }
+
+    .stat-label {
+      color: #555;
+      font-size: 14px;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #1f2933;
+    }
+
+    /* Add goal section */
+    .add-goal-section {
+      background: #ffffff;
+      border-radius: 20px;
+      padding: 14px 14px 14px;
+      border: 1px dashed #ff8fab;
+      margin-bottom: 20px;
+    }
+
+    .add-goal-section h2 {
+      font-size: 20px;
+      margin-bottom: 10px;
+      color: #22223b;
+    }
+
+    .add-goal-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .add-goal-grid label {
+      display: block;
+      font-size: 13px;
+      color: #5c5c7a;
+      margin-bottom: 3px;
+    }
+
+    .add-goal-grid input,
+    .add-goal-grid select {
+      width: 100%;
+      padding: 8px 9px;
+      border-radius: 12px;
+      border: 1px solid #d4d4f5;
+      font-size: 15px;
+      outline: none;
+    }
+
+    .add-goal-grid input:focus,
+    .add-goal-grid select:focus {
+      border-color: #ff758f;
+      box-shadow: 0 0 0 2px rgba(255, 117, 143, 0.25);
+    }
+
+    .subtasks-field label {
+      display: block;
+      font-size: 13px;
+      color: #5c5c7a;
+      margin-bottom: 3px;
+    }
+
+    .subtasks-field textarea {
+      width: 100%;
+      min-height: 60px;
+      resize: vertical;
+      border-radius: 12px;
+      border: 1px solid #d4d4f5;
+      font-size: 15px;
+      padding: 8px 9px;
+      outline: none;
+    }
+
+    .subtasks-field textarea:focus {
+      border-color: #ff758f;
+      box-shadow: 0 0 0 2px rgba(255, 117, 143, 0.25);
+    }
+
+    .add-goal-actions {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 8px;
+    }
+
+    .btn-add {
+      border: none;
+      border-radius: 999px;
+      padding: 9px 18px;
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(135deg, #ff758f, #ffb347);
+      color: white;
+      cursor: pointer;
+      box-shadow: 0 8px 18px rgba(255, 117, 143, 0.5);
+    }
+
+    .btn-add:hover {
+      transform: translateY(-1px);
+    }
+
+    /* Goals list */
+    .goals-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .goals-header h2 {
+      font-size: 20px;
+      color: #22223b;
+    }
+
+    .filter-select {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #d4d4f5;
+      font-size: 14px;
+      background: #ffffff;
+      outline: none;
+    }
+
+    .goals-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .empty-text {
+      margin-top: 10px;
+      font-size: 15px;
+      color: #4a4e69;
+    }
+
+    /* Goal card */
+    .goal-card {
+      background: #ffffff;
+      border-radius: 18px;
+      padding: 10px 11px 9px;
+      border: 2px solid transparent;
+      box-shadow: 0 8px 18px rgba(148, 163, 184, 0.25);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
+      font-size: 15px;
+    }
+
+    .goal-card.study {
+      border-color: #9d4edd;
+      background: linear-gradient(135deg, #f3e8ff, #ffffff);
+    }
+
+    .goal-card.health {
+      border-color: #2dd4bf;
+      background: linear-gradient(135deg, #e0fff8, #ffffff);
+    }
+
+    .goal-card.personal {
+      border-color: #ff9e80;
+      background: linear-gradient(135deg, #fff1e6, #ffffff);
+    }
+
+    .goal-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #22223b;
+    }
+
+    .goal-meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: #555;
+    }
+
+    .goal-chip {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #ffffff;
+    }
+
+    .goal-chip.study {
+      background: #9d4edd;
+    }
+
+    .goal-chip.health {
+      background: #2dd4bf;
+      color: #064e3b;
+    }
+
+    .goal-chip.personal {
+      background: #ff9e80;
+      color: #7f1d1d;
+    }
+
+    .goal-due {
+      font-size: 13px;
+      color: #6b7280;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 7px;
+      border-radius: 999px;
+      background: #e5e7eb;
+      overflow: hidden;
+      margin-top: 4px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      border-radius: inherit;
+      background: linear-gradient(90deg, #34d399, #22c55e, #16a34a);
+      transition: width 0.3s ease-out;
+    }
+
+    .goal-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+      font-size: 13px;
+      color: #4b5563;
+    }
+
+    .subtasks-list {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #4b5563;
+    }
+
+    .subtasks-list div {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      margin-bottom: 2px;
+    }
+
+    .subtasks-list input {
+      width: 14px;
+      height: 14px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .goals-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .stats {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 10px;
+      }
+
+      .header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .goals-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .add-goal-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <!-- Header -->
+    <header class="header">
+  <div class="title-block">
+    <h1>One Step at a Time 🌿</h1>
+    <p>Small consistent actions create big changes.</p>
+  </div>
+  <div class="today-pill" id="todayPill"></div>
+</header>
+
+    <!-- Stats -->
+    <section class="stats">
+      <div class="stat-card">
+        <span class="stat-label">Total Goals</span>
+        <span class="stat-value" id="totalGoals">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Completed Goals</span>
+        <span class="stat-value" id="completedGoals">0</span>
+      </div>
+      <div class="stat-card">
+        <span class="stat-label">Average Progress</span>
+        <span class="stat-value" id="averageProgress">0%</span>
+      </div>
+    </section>
+
+    <!-- Add goal -->
+    <section class="add-goal-section">
+      <h2>Add a new goal ✏️</h2>
+      <div class="add-goal-grid">
+        <div>
+          <label for="goalTitle">Goal title</label>
+          <input id="goalTitle" type="text" placeholder="Eg: Revise DBMS – ER diagrams" />
+        </div>
+        <div>
+          <label for="goalCategory">Category</label>
+          <select id="goalCategory">
+            <option value="Study">Study</option>
+            <option value="Health">Health</option>
+            <option value="Personal">Personal</option>
+          </select>
+        </div>
+        <div>
+          <label for="goalDue">Due date</label>
+          <input id="goalDue" type="date" />
+        </div>
+      </div>
+
+      <div class="subtasks-field">
+        <label for="goalSubtasks">Mini steps (optional)</label>
+        <textarea id="goalSubtasks" placeholder="One step per line (Eg: Watch lecture, Write notes, Practice 5 sums)"></textarea>
+      </div>
+
+      <div class="add-goal-actions">
+        <button class="btn-add" id="addGoalBtn">Add Goal</button>
+      </div>
+    </section>
+
+    <!-- Goals -->
+    <section>
+      <div class="goals-header">
+        <h2>My goals</h2>
+        <select id="filterSelect" class="filter-select">
+          <option value="All">All categories</option>
+          <option value="Study">Study</option>
+          <option value="Health">Health</option>
+          <option value="Personal">Personal</option>
+        </select>
+      </div>
+
+      <div class="goals-grid" id="goalsGrid">
+        <!-- Cards injected by JS -->
+      </div>
+      <div class="empty-text" id="emptyText" style="display:none;">
+        No active goals now. Add a small, easy one to start. 💖
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const todayPill = document.getElementById("todayPill");
+    const totalGoalsEl = document.getElementById("totalGoals");
+    const completedGoalsEl = document.getElementById("completedGoals");
+    const averageProgressEl = document.getElementById("averageProgress");
+    const goalsGrid = document.getElementById("goalsGrid");
+    const emptyText = document.getElementById("emptyText");
+    const filterSelect = document.getElementById("filterSelect");
+
+    const goalTitleInput = document.getElementById("goalTitle");
+    const goalCategoryInput = document.getElementById("goalCategory");
+    const goalDueInput = document.getElementById("goalDue");
+    const goalSubtasksInput = document.getElementById("goalSubtasks");
+    const addGoalBtn = document.getElementById("addGoalBtn");
+
+    // Initial example goals
+    let goals = [
+      {
+        id: 1,
+        title: "Revise DBMS – ER diagrams",
+        category: "Study",
+        due: addDays(1),
+        subtasks: [
+          { text: "Watch lecture again", done: true },
+          { text: "Draw 3 ER diagrams", done: false }
+        ]
+      },
+      {
+        id: 2,
+        title: "Evening walk + water",
+        category: "Health",
+        due: addDays(0),
+        subtasks: [
+          { text: "15 min walk", done: true },
+          { text: "Drink 2 glasses of water", done: false }
+        ]
+      },
+      {
+        id: 3,
+        title: "Clean downloads folder",
+        category: "Personal",
+        due: addDays(3),
+        subtasks: [
+          { text: "Delete useless files", done: false },
+          { text: "Organise PDFs", done: false }
+        ]
+      }
+    ];
+
+    function addDays(n) {
+      const d = new Date();
+      d.setDate(d.getDate() + n);
+      return d.toISOString().slice(0, 10);
+    }
+
+    function formatDate(dStr) {
+      if (!dStr) return "No deadline";
+      const d = new Date(dStr + "T00:00:00");
+      if (isNaN(d)) return "No deadline";
+      const opts = { day: "numeric", month: "short" };
+      return d.toLocaleDateString(undefined, opts);
+    }
+
+    function setToday() {
+      const d = new Date();
+      const options = { weekday: "short", month: "short", day: "numeric" };
+      todayPill.textContent = d.toLocaleDateString(undefined, options);
+    }
+
+    function calcProgress(goal) {
+      if (!goal.subtasks || goal.subtasks.length === 0) return 0;
+      const done = goal.subtasks.filter(s => s.done).length;
+      return Math.round((done / goal.subtasks.length) * 100);
+    }
+
+    function refreshStats() {
+      const total = goals.length;
+      const completed = goals.filter(g => calcProgress(g) === 100).length;
+
+      totalGoalsEl.textContent = total;
+      completedGoalsEl.textContent = completed;
+
+      if (goals.length === 0) {
+        averageProgressEl.textContent = "0%";
+        return;
+      }
+
+      const avg = Math.round(
+        goals.reduce((sum, g) => sum + calcProgress(g), 0) / goals.length
+      );
+      averageProgressEl.textContent = avg + "%";
+    }
+
+    // Render ONLY not-completed goals in the cards
+    function renderGoals() {
+      const filter = filterSelect.value;
+
+      const visibleGoals = goals.filter(g => {
+        const notDone = calcProgress(g) < 100; // hide completed
+        const matchesFilter = filter === "All" || g.category === filter;
+        return notDone && matchesFilter;
+      });
+
+      goalsGrid.innerHTML = "";
+
+      if (visibleGoals.length === 0) {
+        emptyText.style.display = "block";
+      } else {
+        emptyText.style.display = "none";
+      }
+
+      visibleGoals.forEach(goal => {
+        const progress = calcProgress(goal);
+        const categoryClass =
+          goal.category === "Study" ? "study" :
+          goal.category === "Health" ? "health" :
+          "personal";
+
+        const card = document.createElement("div");
+        card.className = "goal-card " + categoryClass;
+        card.dataset.id = goal.id;
+
+        card.innerHTML = `
+          <div class="goal-title">${goal.title}</div>
+          <div class="goal-meta">
+            <span class="goal-chip ${categoryClass}">${goal.category}</span>
+            <span class="goal-due">Due: ${formatDate(goal.due)}</span>
+          </div>
+          <div class="progress-track">
+            <div class="progress-bar" style="width:${progress}%"></div>
+          </div>
+          <div class="goal-footer">
+            <span>${progress}% complete</span>
+            <span>
+              ${
+                goal.subtasks && goal.subtasks.length
+                  ? `${goal.subtasks.filter(s => s.done).length}/${goal.subtasks.length} steps`
+                  : "No steps"
+              }
+            </span>
+          </div>
+          ${
+            goal.subtasks && goal.subtasks.length
+              ? `<div class="subtasks-list">
+                  ${goal.subtasks
+                    .map(
+                      (s, i) => `
+                    <div>
+                      <input type="checkbox" data-goal="${goal.id}" data-index="${i}" ${s.done ? "checked" : ""}/>
+                      <span>${s.text}</span>
+                    </div>`
+                    )
+                    .join("")}
+                </div>`
+              : ""
+          }
+        `;
+
+        goalsGrid.appendChild(card);
+      });
+
+      refreshStats();
+    }
+
+    // Checkbox behaviour: update progress and hide card when 100%
+    goalsGrid.addEventListener("change", (e) => {
+      if (e.target.matches('input[type="checkbox"][data-goal]')) {
+        const goalId = Number(e.target.getAttribute("data-goal"));
+        const idx = Number(e.target.getAttribute("data-index"));
+        const goal = goals.find(g => g.id === goalId);
+        if (!goal || !goal.subtasks[idx]) return;
+
+        goal.subtasks[idx].done = e.target.checked;
+        renderGoals();  // re-render; completed ones disappear
+      }
+    });
+
+    // Add new goal
+    addGoalBtn.addEventListener("click", () => {
+      const title = goalTitleInput.value.trim();
+      const category = goalCategoryInput.value;
+      const due = goalDueInput.value || null;
+      const subtasksLines = goalSubtasksInput.value
+        .split("\n")
+        .map(s => s.trim())
+        .filter(Boolean);
+
+      if (!title) {
+        alert("Please enter a goal title 😊");
+        return;
+      }
+
+      const newGoal = {
+        id: Date.now(),
+        title,
+        category,
+        due,
+        subtasks: subtasksLines.map(t => ({ text: t, done: false }))
+      };
+
+      goals.push(newGoal);
+
+      // Clear form
+      goalTitleInput.value = "";
+      goalSubtasksInput.value = "";
+      goalDueInput.value = "";
+      goalCategoryInput.value = "Study";
+
+      renderGoals();
+    });
+
+    filterSelect.addEventListener("change", renderGoals);
+
+    // Init
+    setToday();
+    renderGoals();
+  </script>
+</body>
+</html>
